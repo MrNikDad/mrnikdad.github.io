@@ -13,7 +13,8 @@ let recognizedText = '';
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 recognition.interimResults = true;
 recognition.continuous = true;
-recognition.lang = 'ru-RU'; // По умолчанию русский язык
+//recognition.lang = 'ru-RU'; // По умолчанию русский язык
+recognition.lang = 'en-US'; // Временно измените язык
 
 // Обработчик начала распознавания
 startBtn.addEventListener('click', () => {
@@ -84,8 +85,9 @@ function populateVoiceList() {
     languageSelect.appendChild(option);
   });
 
-  // Устанавливаем язык озвучки по умолчанию (системный язык или первый доступный)
-  const defaultLanguage = voices.find(voice => voice.default)?.lang || voices[0]?.lang || 'ru-RU';
+  // Устанавливаем язык озвучки по умолчанию (предпочтительный язык или первый доступный или русский)
+  const preferredLanguages = ['ru-RU', 'ru_RU'];
+  const defaultLanguage = voices.find(voice => preferredLanguages.includes(voice.lang))?.lang || voices[0]?.lang || 'ru-RU';
   languageSelect.value = defaultLanguage;
 }
 
