@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Ассистент</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Ассистент</h1>
+
+      <!-- Кнопка для начала разговора -->
+      <button id="start-btn">Начать разговор</button>
+
+      <!-- Текстовое поле для распознанного текста -->
+      <textarea id="output-text" readonly placeholder="Распознанный текст появится здесь..."></textarea>
+
+      <!-- Текстовое поле для ошибок и статусов -->
+      <textarea id="status-text" readonly placeholder="Ошибки и статусы будут отображаться здесь..."></textarea>
+
+      <!-- Выпадающий список для выбора языка озвучки -->
+      <label for="language-select">Выберите язык озвучки:</label>
+      <select id="language-select">
+        <option value="ru-RU">Русский</option>
+        <option value="en-US">Английский (США)</option>
+        <option value="es-ES">Испанский</option>
+        <option value="de-DE">Немецкий</option>
+        <option value="fr-FR">Французский</option>
+      </select>
+
+      <!-- Кнопка для озвучивания текста -->
+      <button id="speak-btn">Озвучить текст</button>
+
+      <!-- Кнопка для очистки текста -->
+      <button id="clear-btn">Очистить текст</button>
+    </div>
+
+    <!-- Подключение скриптов -->
+    <script src="main.js"></script>
+  </body>
+</html>
