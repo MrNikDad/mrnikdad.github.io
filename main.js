@@ -45,13 +45,17 @@ recognitionLanguageSelect.addEventListener('change', () => {
     return;
   }
 
+  recognition.lang = newLanguage;
+
+  // Обновляем текст кнопки независимо от состояния распознавания
+  updateStartButtonText();
+
   if (isRecognitionActive) {
     recognition.stop();
     isRecognitionActive = false;
     updateStartButtonText();
+    statusText.value = 'Распознавание речи остановлено для смены языка.';
   }
-
-  recognition.lang = newLanguage;
 });
 
 // Обработчик начала/остановки распознавания
