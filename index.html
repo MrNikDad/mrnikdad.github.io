@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Ассистент</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Ассистент</h1>
+
+      <!-- Выпадающий список для выбора языка распознавания -->
+      <label for="recognition-language-select">Выберите язык распознавания:</label>
+      <select id="recognition-language-select">
+        <option value="ru-RU">Русский</option>
+        <option value="en-US">Английский (США)</option>
+        <option value="es-ES">Испанский</option>
+        <option value="de-DE">Немецкий</option>
+        <option value="fr-FR">Французский</option>
+      </select>
+
+      <!-- Кнопка для включения/выключения распознавания -->
+      <button id="start-btn" class="start-btn">Включить распознавание текста (ru-RU)</button>
+
+      <!-- Текстовое поле для распознанного текста -->
+      <textarea id="output-text" placeholder="Распознанный текст появится здесь..."></textarea>
+
+      <!-- Кнопка для очистки текста -->
+      <button id="clear-btn" class="clear-btn">Очистить текст</button>
+
+      <!-- Текстовое поле для ошибок и статусов -->
+      <textarea id="status-text" readonly placeholder="Ошибки и статусы будут отображаться здесь..."></textarea>
+
+      <!-- Выпадающий список для выбора языка озвучки -->
+      <label for="language-select">Выберите язык озвучки:</label>
+      <select id="language-select">
+        <option value="ru-RU">Русский</option>
+        <option value="en-US">Английский (США)</option>
+        <option value="es-ES">Испанский</option>
+        <option value="de-DE">Немецкий</option>
+        <option value="fr-FR">Французский</option>
+      </select>
+
+      <!-- Настройка высоты голоса -->
+      <label for="pitch-range">Высота голоса (pitch): <span id="pitch-value">1</span></label>
+      <input type="range" id="pitch-range" min="0.1" max="2" step="0.1" value="1" />
+
+      <!-- Настройка скорости речи -->
+      <label for="rate-range">Скорость речи (rate): <span id="rate-value">1</span></label>
+      <input type="range" id="rate-range" min="0.1" max="2" step="0.1" value="1" />
+
+      <!-- Кнопка для озвучивания текста -->
+      <button id="speak-btn" class="speak-btn">Озвучить текст</button>
+    </div>
+
+    <!-- Подключение скриптов -->
+    <script src="main.js"></script>
+  </body>
+</html>
