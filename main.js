@@ -104,11 +104,6 @@ recognition.onerror = (event) => {
   statusText.value = 'Ошибка: ' + event.error;
 };
 
-// Обработчик окончания речи
-recognition.onspeechend = () => {
-  statusText.value = 'Речь закончилась, но микрофон продолжает слушать.';
-};
-
 // Обработчик нажатия на кнопку "Озвучить текст"
 speakBtn.addEventListener('click', () => {
   if (isSpeaking) {
@@ -206,7 +201,7 @@ function populateVoiceList() {
   });
 
   const preferredLanguages = ['ru-RU', 'ru_RU'];
-  const defaultLanguage = voices.find(voice => preferredLanguages.includes(voice.lang))?.lang || voices[0]?.lang || 'ru-RU';
+  const defaultLanguage = voices.find(voice => preferredLanguages.includes(voice.lang))?.lang || voices[0]?.lang || 'ru_RU';
   languageSelect.value = defaultLanguage;
 }
 
