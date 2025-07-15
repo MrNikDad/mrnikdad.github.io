@@ -1,64 +1,413 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <title>Расчёт охлаждения горячей воды</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js "></script>
+  <style>
+    :root {
+      --primary-color: #1e88e5;
+      --bg-color: #f4f6f8;
+      --card-bg: white;
+      --text-color: #333;
+      --border-radius: 10px;
+      --input-padding: 12px;
+    }
 
-    <title>Ассистент</title>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 20px;
+      color: var(--text-color);
+    }
 
-    <link rel="stylesheet" href="style.css" />
-  </head>
+    h1, h2 {
+      text-align: center;
+      color: var(--primary-color);
+    }
 
-  <body>
-    <div class="container">
-      <h1>Ассистент</h1>
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
 
-      <!-- Выпадающий список для выбора языка распознавания -->
-      <label for="recognition-language-select">Выберите язык распознавания:</label>
-      <select id="recognition-language-select">
-        <option value="ru_RU">Русский</option>
-        <option value="en_US">Английский (США)</option>
-        <option value="es_ES">Испанский</option>
-        <option value="de_DE">Немецкий</option>
-        <option value="fr_FR">Французский</option>
-      </select>
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
 
-      <!-- Кнопка для включения/выключения распознавания -->
-      <button id="start-btn" class="start-btn">Включить распознавание текста (ru-RU)</button>
+    .form-group label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
 
-      <!-- Текстовое поле для распознанного текста -->
-      <textarea id="output-text" placeholder="Распознанный текст появится здесь..."></textarea>
+    .form-group input[type="number"] {
+      padding: var(--input-padding);
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+      width: 100%;
+      transition: border-color 0.3s ease;
+    }
 
-      <!-- Кнопка для очистки текста -->
-      <button id="clear-btn" class="clear-btn">Очистить текст</button>
+    .form-group input[type="number"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
 
-      <!-- Текстовое поле для ошибок и статусов -->
-      <textarea id="status-text" readonly placeholder="Ошибки и статусы будут отображаться здесь..."></textarea>
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: normal;
+    }
+	
+	.checkbox-wrapper {
+	  display: flex;
+	  align-items: center;
+	  gap: 10px;
+	  margin-top: 5px;
+	}
 
-      <!-- Выпадающий список для выбора языка озвучки -->
-      <label for="language-select">Выберите язык озвучки:</label>
-      <select id="language-select">
-        <option value="ru_RU">Русский</option>
-        <option value="en_US">Английский (США)</option>
-        <option value="es_ES">Испанский</option>
-        <option value="de_DE">Немецкий</option>
-        <option value="fr_FR">Французский</option>
-      </select>
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+      margin-top: 20px;
+    }
 
-      <!-- Настройка высоты голоса -->
-      <label for="pitch-range">Высота голоса (pitch): <span id="pitch-value">1</span></label>
-      <input type="range" id="pitch-range" min="0.1" max="2" step="0.1" value="1" />
+    button:hover {
+      background-color: #1565c0;
+    }
 
-      <!-- Настройка скорости речи -->
-      <label for="rate-range">Скорость речи (rate): <span id="rate-value">1</span></label>
-      <input type="range" id="rate-range" min="0.1" max="2" step="0.1" value="1" />
+    #output {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      background: #e3f2fd;
+      border-left: 5px solid var(--primary-color);
+    }
 
-      <!-- Кнопка для озвучивания текста -->
-      <button id="speak-btn" class="speak-btn">Озвучить текст</button>
-    </div>
+    canvas {
+      margin-top: 30px;
+      width: 100%;
+      height: auto;
+    }
 
-    <!-- Подключение скриптов -->
-    <script src="main.js"></script>
-  </body>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    @media (max-width: 600px) {
+      .form-group {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Расчёт охлаждения горячей воды</h1>
+
+  <h2 style="margin-top: 0;">Параметры расчёта</h2>
+
+  <div class="form-group">
+    <label>Масса горячего продукта (кг):</label>
+    <input type="number" id="mass_hot" value="1400" min="1" step="1">
+  </div>
+
+  <div class="form-group">
+    <label>Начальная темп. горячего продукта (°C):</label>
+    <input type="number" id="T_hot_initial" value="90" min="0" step="1">
+  </div>
+
+  <div class="form-group">
+    <label>Начальная темп. холодной воды (°C):</label>
+    <input type="number" id="T_cold_initial" value="5" min="0" step="1">
+  </div>
+
+  <div class="form-group">
+    <label>Производительность насоса (м³/час):</label>
+    <input type="number" id="pump_flow" value="1" min="0.1" step="0.1">
+  </div>
+
+  <div class="form-group">
+	<div class="checkbox-wrapper">
+		<input type="checkbox" id="constant_coolant">
+		<label for="constant_coolant" style="margin: 0; user-select: none;">
+			Использовать постоянную температуру охладителя (проточная вода)
+		</label>
+	</div>
+  </div>
+
+  <div id="tank_volume_group" class="form-group">
+    <label>Объём бака охладителя с водой (литры):</label>
+    <input type="number" id="tank_volume" value="1000" min="10" step="10">
+  </div>
+
+  <div class="form-group">
+    <label>Целевая температура горячего продукта (°C):</label>
+    <input type="number" id="target_T" value="35" min="0" step="1">
+  </div>
+
+  <div class="form-group">
+    <label>Площадь теплообменника (м²):</label>
+    <input type="number" id="area" value="5.5" min="0.1" step="0.1">
+  </div>
+
+  <div class="form-group">
+    <label>Теплопроводность стенки (Вт/(м·°C)):</label>
+    <input type="number" id="lambda" value="16" min="0.1" step="0.1">
+  </div>
+
+  <div class="form-group">
+    <label>Толщина стенки теплообменника (м):</label>
+    <input type="number" id="thickness" value="0.003" min="0.001" step="0.001">
+  </div>
+
+  <button onclick="calculate()">Запустить расчёт</button>
+
+  <div id="output"></div>
+  <canvas id="chart"></canvas>
+  <table id="results"></table>
+</div>
+
+<script>
+const c_water = 4186; // Дж/(кг·°C)
+const dt = 1; // шаг по времени, секунды
+
+let results = [];
+
+// Добавляем обработчик изменения состояния чекбокса
+document.getElementById("constant_coolant").addEventListener("change", function () {
+  const tankVolumeGroup = document.getElementById("tank_volume_group");
+  if (this.checked) {
+    tankVolumeGroup.style.display = "none";
+  } else {
+    tankVolumeGroup.style.display = "flex";
+  }
+});
+
+// Устанавливаем начальное состояние поля при загрузке страницы
+window.addEventListener("load", function () {
+  const tankVolumeGroup = document.getElementById("tank_volume_group");
+  const useConstantCoolant = document.getElementById("constant_coolant").checked;
+  tankVolumeGroup.style.display = useConstantCoolant ? "none" : "flex";
+});
+
+function calculate() {
+  results = [];
+  document.getElementById("output").innerHTML = ""; // Очистка предыдущих сообщений
+
+  const mass_hot = parseFloat(document.getElementById("mass_hot").value);
+  const T_hot_initial = parseFloat(document.getElementById("T_hot_initial").value);
+  const T_cold_initial = parseFloat(document.getElementById("T_cold_initial").value);
+  const pump_flow = parseFloat(document.getElementById("pump_flow").value);
+  const tank_volume = parseFloat(document.getElementById("tank_volume").value);
+  const target_T = parseFloat(document.getElementById("target_T").value);
+  const area = parseFloat(document.getElementById("area").value);
+  const lambda = parseFloat(document.getElementById("lambda").value);
+  const thickness = parseFloat(document.getElementById("thickness").value);
+  const useConstantCoolant = document.getElementById("constant_coolant").checked;
+
+  const mass_flow_cold_kg_per_sec = (pump_flow * 1000) / 3600;
+  const k = lambda / thickness;
+  const UA = k * area;
+
+  let T_hot = T_hot_initial;
+  let T_cold_tank = T_cold_initial;
+  let time = 0;
+  let total_energy_removed_J = 0;
+  let reason = null;
+
+  let minuteCounter = 0;
+
+  results.push({
+    minute: 0,
+    T_hot: T_hot.toFixed(2),
+    T_cold: T_cold_tank.toFixed(2)
+  });
+
+  while (time < 36000) { // ограничение по времени
+    const deltaT = T_hot - T_cold_tank;
+
+    if (T_hot <= target_T) {
+      reason = 'target';
+      break;
+    }
+
+    if (Math.abs(T_hot - T_cold_tank) < 0.1) {
+      reason = 'equalized';
+      break;
+    }
+
+    if (deltaT <= 0) {
+      reason = 'reverse';
+      break;
+    }
+
+    const C_hot = (mass_hot * c_water) / dt;
+    const C_cold = mass_flow_cold_kg_per_sec * c_water;
+
+    const C_min = Math.min(C_hot, C_cold);
+    const C_max = Math.max(C_hot, C_cold);
+    const Cr = C_min / C_max;
+
+    const NTU = UA / C_min;
+
+    let epsilon;
+    if (Cr !== 1) {
+      epsilon = (1 - Math.exp(-NTU * (1 - Cr))) / (1 - Cr * Math.exp(-NTU * (1 - Cr)));
+    } else {
+      epsilon = NTU / (1 + NTU);
+    }
+
+    const Q = epsilon * C_min * deltaT; // Дж/сек
+    const energy_this_step_J = Q * dt;
+    total_energy_removed_J += energy_this_step_J;
+
+    // Изменение температуры горячей воды
+    const dT_hot = -(Q * dt) / (mass_hot * c_water);
+    T_hot += dT_hot;
+
+    // Изменение температуры холодной воды
+    if (!useConstantCoolant) {
+      const coldWaterInThisStep = mass_flow_cold_kg_per_sec * dt;
+      const T_cold_out = T_cold_tank + Q / (coldWaterInThisStep * c_water);
+      const Q_cold = coldWaterInThisStep * c_water * (T_cold_out - T_cold_tank);
+
+      T_cold_tank += Q_cold / (tank_volume * c_water);
+    }
+
+    time += dt;
+    minuteCounter += dt;
+
+    if (minuteCounter >= 60) {
+      minuteCounter = 0;
+      results.push({
+        minute: Math.floor(time / 60),
+        T_hot: T_hot.toFixed(2),
+        T_cold: T_cold_tank.toFixed(2)
+      });
+    }
+  }
+
+  // Добавляем начальную точку, если её нет
+  if (results[0].minute !== 0) {
+    results.unshift({
+      minute: 0,
+      T_hot: T_hot_initial.toFixed(2),
+      T_cold: T_cold_initial.toFixed(2)
+    });
+  }
+
+  // Подсчёт энергии
+  const total_energy_removed_kWh = (total_energy_removed_J / 3600000).toFixed(2);
+  const hours = Math.floor(time / 3600);
+  const minutes = Math.floor((time % 3600) / 60);
+  const seconds = Math.floor(time % 60);
+
+  let outputHTML = "";
+  if (reason === 'target') {
+    outputHTML = `
+      <p style="color: green;"><strong>Расчёт успешно завершён.</strong></p>
+      <p><strong>Время охлаждения:</strong> ${hours} ч ${minutes} мин ${seconds} сек</p>
+      <p><strong>Отведено тепла:</strong> ${total_energy_removed_kWh} кВт·ч</p>`;
+  } else if (reason === 'equalized') {
+    outputHTML = `
+      <p style="color: orange;"><strong>Целевая температура недостигнута. Температура сравнялась.</strong></p>
+      <p><strong>Время:</strong> ${hours} ч ${minutes} мин ${seconds} сек</p>
+      <p><strong>Финальная температура:</strong> ~${T_hot.toFixed(2)}°C</p>`;
+  } else if (reason === 'reverse') {
+    outputHTML = `
+      <p style="color: red;"><strong>Ошибка:</strong> Температура охладителя выше!</p>
+      <p><strong>Время:</strong> ${hours} ч ${minutes} мин ${seconds} сек</p>`;
+  } else {
+    outputHTML = `<p style="color: goldenrod;"><strong>Предупреждение:</strong> Превышено максимальное время расчёта.</p>`;
+  }
+
+  document.getElementById("output").innerHTML = outputHTML;
+  renderTable();
+  renderChart();
+}
+
+function renderTable() {
+  const table = document.getElementById("results");
+  table.innerHTML = `
+    <tr>
+      <th>Минута</th>
+      <th>Горячая вода (°C)</th>
+      <th>Холодная вода (°C)</th>
+    </tr>`;
+  results.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${row.minute}</td><td>${row.T_hot}</td><td>${row.T_cold}</td>`;
+    table.appendChild(tr);
+  });
+}
+
+function renderChart() {
+  const ctx = document.getElementById('chart').getContext('2d');
+  if (window.myChart) window.myChart.destroy();
+
+  window.myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: results.map(r => r.minute),
+      datasets: [
+        {
+          label: 'Горячая вода (°C)',
+          data: results.map(r => parseFloat(r.T_hot)),
+          borderColor: 'red',
+          fill: false
+        },
+        {
+          label: 'Холодная вода (°C)',
+          data: results.map(r => parseFloat(r.T_cold)),
+          borderColor: 'blue',
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: 'Время, мин' } },
+        y: { title: { display: true, text: 'Температура, °C' } }
+      }
+    }
+  });
+}
+</script>
+
+</body>
 </html>
